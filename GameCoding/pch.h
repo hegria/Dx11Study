@@ -7,6 +7,8 @@
 #include "Struct.h"
 
 // STL
+#include <memory>
+#include <iostream>
 #include <vector>
 #include <list>
 #include <map>
@@ -16,6 +18,7 @@ using namespace std;
 // WIN
 #include <windows.h>
 #include <assert.h>
+
 
 // DX
 #include <d3d11.h>
@@ -37,3 +40,20 @@ using namespace Microsoft::WRL;
 #endif
 
 #define CHECK(p)	assert(SUCCEEDED(p))
+
+// Engine
+#include "Graphics.h"
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
+#include "InputLayout.h"
+#include "Geometry.h"
+#include "GeometryHelper.h"
+#include "VertexData.h"
+#include "Shader.h"
+#include "ConstantBuffer.h"
+#include "Texture.h"
+#include "RasterizerState.h"
+#include "SamplerState.h"
+#include "BlendState.h"
+#include "Pipeline.h"
+#include "Transform.h"
