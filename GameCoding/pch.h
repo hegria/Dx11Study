@@ -9,6 +9,7 @@
 // STL
 #include <memory>
 #include <iostream>
+#include <array>
 #include <vector>
 #include <list>
 #include <map>
@@ -19,6 +20,9 @@ using namespace std;
 #include <windows.h>
 #include <assert.h>
 
+// Utils
+#include "tinyxml2.h"
+using namespace tinyxml2;
 
 // DX
 #include <d3d11.h>
@@ -41,6 +45,13 @@ using namespace Microsoft::WRL;
 
 #define CHECK(p)	assert(SUCCEEDED(p))
 
+#define			GAME		GGame
+#define			INPUT		GAME->GetInputManager()
+#define			TIME		GAME->GetTimeManager()
+#define			SCENE		GAME->GetSceneManager()
+#define			RESOURCES	GAME->GetResourceManager()
+#define			RENDER		GAME->GetRenderManager()
+
 // Engine
 #include "Graphics.h"
 #include "VertexBuffer.h"
@@ -49,7 +60,7 @@ using namespace Microsoft::WRL;
 #include "Geometry.h"
 #include "GeometryHelper.h"
 #include "VertexData.h"
-#include "Shader.h"
+#include "ShaderBase.h"
 #include "ConstantBuffer.h"
 #include "Texture.h"
 #include "RasterizerState.h"
