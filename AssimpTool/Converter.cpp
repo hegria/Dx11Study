@@ -39,6 +39,42 @@ void Converter::ExportModelData(wstring savePath)
 {
 	wstring finalPath = _modelPath + savePath + L".mesh";
 	ReadModelData(_scene->mRootNode, -1, -1);
+	ReadSkinData();
+
+	//Write CSV File
+	{
+		FILE* file;
+		::fopen_s(&file, "../Vertices.csv", "w");
+
+		for (shared_ptr<asBone>& bone : _bones)
+		{
+			string name = bone->name;
+			::fprintf(file, "%d,%s\n", bone->index, bone->name.c_str());
+		}
+
+		::fprintf(file, "\n");
+
+		for (shared_ptr<asMesh>& mesh : _meshes)
+		{
+			string name = mesh->name;
+			::printf("%s\n", name.c_str());
+
+			for (UINT i = 0; i < mesh->vertices.size(); i++)
+			{
+				Vec3 p = mesh->vertices[i].position;
+				Vec4 indices = mesh->vertices[i].blendIndices;
+				Vec4 weights = mesh->vertices[i].blendWeights;
+
+				::fprintf(file, "%f,%f,%f,", p.x, p.y, p.z);
+				::fprintf(file, "%f,%f,%f,%f,", indices.x, indices.y, indices.z, indices.w);
+				::fprintf(file, "%f,%f,%f,%f\n", weights.x, weights.y, weights.z, weights.w);
+			}
+		}
+
+		::fclose(file);
+	}
+
+
 	WriteModelFile(finalPath);
 }
 
@@ -47,6 +83,14 @@ void Converter::ExportMaterialData(wstring savePath)
 	wstring finalPath = _texturePath + savePath + L".xml";
 	ReadMaterialData();
 	WriteMaterialData(finalPath);
+}
+
+void Converter::ExportAnimationData(wstring savePath, uint32 index /*= 0*/)
+{
+	wstring finalPath = _modelPath + savePath + L".clip";
+	assert(index < _scene->mNumAnimations);
+	shared_ptr<asAnimation> animation = ReadAnimationData(_scene->mAnimations[index]);
+	WriteAnimationData(animation, finalPath);
 }
 
 void Converter::ReadModelData(aiNode* node, int32 index, int32 parent)
@@ -126,6 +170,45 @@ void Converter::ReadMeshData(aiNode* node, int32 bone)
 	}
 
 	_meshes.push_back(mesh);
+}
+
+void Converter::ReadSkinData()
+{
+	for (uint32 i = 0; i < _scene->mNumMeshes; i++)
+	{
+		aiMesh* srcMesh = _scene->mMeshes[i];
+		if (srcMesh->HasBones() == false)
+			continue;
+
+		shared_ptr<asMesh> mesh = _meshes[i];
+
+		vector<asBoneWeights> tempVertexBoneWeights;
+		tempVertexBoneWeights.resize(mesh->vertices.size());
+
+		// Bone을 순회하면서 연관된 VertexId, Weight를 구해서 기록한다.
+		for (uint32 b = 0; b < srcMesh->mNumBones; b++)
+		{
+			aiBone* srcMeshBone = srcMesh->mBones[b];
+			uint32 boneIndex = GetBoneIndex(srcMeshBone->mName.C_Str());
+
+			for (uint32 w = 0; w < srcMeshBone->mNumWeights; w++)
+			{
+				uint32 index = srcMeshBone->mWeights[w].mVertexId;
+				float weight = srcMeshBone->mWeights[w].mWeight;
+				tempVertexBoneWeights[index].AddWeights(boneIndex, weight);
+			}
+		}
+
+		// 최종 결과 계산
+		for (uint32 v = 0; v < tempVertexBoneWeights.size(); v++)
+		{
+			tempVertexBoneWeights[v].Normalize();
+
+			asBlendWeight blendWeight = tempVertexBoneWeights[v].GetBlendWeights();
+			mesh->vertices[v].blendIndices = blendWeight.indices;
+			mesh->vertices[v].blendWeights = blendWeight.weights;
+		}
+	}
 }
 
 void Converter::WriteModelFile(wstring finalPath)
@@ -291,7 +374,7 @@ std::string Converter::WriteTexture(string saveFolder, string file)
 	const aiTexture* srcTexture = _scene->GetEmbeddedTexture(file.c_str());
 	if (srcTexture)
 	{
-		string pathStr = saveFolder + fileName;
+		string pathStr = (filesystem::path(saveFolder) / fileName).string();
 
 		if (srcTexture->mHeight == 0)
 		{
@@ -339,4 +422,167 @@ std::string Converter::WriteTexture(string saveFolder, string file)
 	}
 
 	return fileName;
+}
+
+std::shared_ptr<asAnimation> Converter::ReadAnimationData(aiAnimation* srcAnimation)
+{
+	shared_ptr<asAnimation> animation = make_shared<asAnimation>();
+	animation->name = srcAnimation->mName.C_Str();
+	animation->frameRate = (float)srcAnimation->mTicksPerSecond;
+	animation->frameCount = (uint32)srcAnimation->mDuration + 1;
+
+	map<string, shared_ptr<asAnimationNode>> cacheAnimNodes;
+
+	for (uint32 i = 0; i < srcAnimation->mNumChannels; i++)
+	{
+		aiNodeAnim* srcNode = srcAnimation->mChannels[i];
+
+		// 애니메이션 노드 데이터 파싱
+		shared_ptr<asAnimationNode> node = ParseAnimationNode(animation, srcNode);
+
+		// 현재 찾은 노드 중에 제일 긴 시간으로 애니메이션 시간 갱신
+		animation->duration = max(animation->duration, node->keyframe.back().time);
+
+		cacheAnimNodes[srcNode->mNodeName.C_Str()] = node;
+	}
+
+	ReadKeyframeData(animation, _scene->mRootNode, cacheAnimNodes);
+
+	return animation;
+}
+
+std::shared_ptr<asAnimationNode> Converter::ParseAnimationNode(shared_ptr<asAnimation> animation, aiNodeAnim* srcNode)
+{
+	std::shared_ptr<asAnimationNode> node = make_shared<asAnimationNode>();
+	node->name = srcNode->mNodeName;
+
+	uint32 keyCount = max(max(srcNode->mNumPositionKeys, srcNode->mNumScalingKeys), srcNode->mNumRotationKeys);
+
+	for (uint32 k = 0; k < keyCount; k++)
+	{
+		asKeyframeData frameData;
+
+		bool found = false;
+		uint32 t = node->keyframe.size();
+
+		// Position
+		if (::fabsf((float)srcNode->mPositionKeys[k].mTime - (float)t) <= 0.0001f)
+		{
+			aiVectorKey key = srcNode->mPositionKeys[k];
+			frameData.time = (float)key.mTime;
+			::memcpy_s(&frameData.translation, sizeof(Vec3), &key.mValue, sizeof(aiVector3D));
+
+			found = true;
+		}
+
+		// Rotation
+		if (::fabsf((float)srcNode->mRotationKeys[k].mTime - (float)t) <= 0.0001f)
+		{
+			aiQuatKey key = srcNode->mRotationKeys[k];
+			frameData.time = (float)key.mTime;
+
+			frameData.rotation.x = key.mValue.x;
+			frameData.rotation.y = key.mValue.y;
+			frameData.rotation.z = key.mValue.z;
+			frameData.rotation.w = key.mValue.w;
+
+			found = true;
+		}
+
+		// Scale
+		if (::fabsf((float)srcNode->mScalingKeys[k].mTime - (float)t) <= 0.0001f)
+		{
+			aiVectorKey key = srcNode->mScalingKeys[k];
+			frameData.time = (float)key.mTime;
+			::memcpy_s(&frameData.scale, sizeof(Vec3), &key.mValue, sizeof(aiVector3D));
+
+			found = true;
+		}
+
+		if (found == true)
+			node->keyframe.push_back(frameData);
+	}
+
+	// Keyframe 늘려주기
+	if (node->keyframe.size() < animation->frameCount)
+	{
+		uint32 count = animation->frameCount - node->keyframe.size();
+		asKeyframeData keyFrame = node->keyframe.back();
+
+		for (uint32 n = 0; n < count; n++)
+			node->keyframe.push_back(keyFrame);
+	}
+
+	return node;
+}
+
+void Converter::ReadKeyframeData(shared_ptr<asAnimation> animation, aiNode* srcNode, map<string, shared_ptr<asAnimationNode>>& cache)
+{
+	shared_ptr<asKeyframe> keyframe = make_shared<asKeyframe>();
+	keyframe->boneName = srcNode->mName.C_Str();
+
+	shared_ptr<asAnimationNode> findNode = cache[srcNode->mName.C_Str()];
+
+	for (uint32 i = 0; i < animation->frameCount; i++)
+	{
+		asKeyframeData frameData;
+
+		if (findNode == nullptr)
+		{
+			Matrix transform(srcNode->mTransformation[0]);
+			transform = transform.Transpose();
+			frameData.time = (float)i;
+			transform.Decompose(OUT frameData.scale, OUT frameData.rotation, OUT frameData.translation);
+		}
+		else
+		{
+			frameData = findNode->keyframe[i];
+		}
+
+		keyframe->transforms.push_back(frameData);
+	}
+
+	// 애니메이션 키프레임 채우기
+	animation->keyframes.push_back(keyframe);
+
+	for (uint32 i = 0; i < srcNode->mNumChildren; i++)
+		ReadKeyframeData(animation, srcNode->mChildren[i], cache);
+}
+
+void Converter::WriteAnimationData(shared_ptr<asAnimation> animation, wstring finalPath)
+{
+	auto path = filesystem::path(finalPath);
+
+	// 폴더가 없으면 만든다.
+	filesystem::create_directory(path.parent_path());
+
+	shared_ptr<FileUtils> file = make_shared<FileUtils>();
+	file->Open(finalPath, FileMode::Write);
+
+	file->Write<string>(animation->name);
+	file->Write<float>(animation->duration);
+	file->Write<float>(animation->frameRate);
+	file->Write<uint32>(animation->frameCount);
+
+	file->Write<uint32>(animation->keyframes.size());
+
+	for (shared_ptr<asKeyframe> keyframe : animation->keyframes)
+	{
+		file->Write<string>(keyframe->boneName);
+
+		file->Write<uint32>(keyframe->transforms.size());
+		file->Write(&keyframe->transforms[0], sizeof(asKeyframeData) * keyframe->transforms.size());
+	}
+}
+
+uint32 Converter::GetBoneIndex(const string& name)
+{
+	for (shared_ptr<asBone>& bone : _bones)
+	{
+		if (bone->name == name)
+			return bone->index;
+	}
+
+	assert(false);
+	return 0;
 }
