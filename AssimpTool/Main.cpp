@@ -19,7 +19,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	desc.height = 600;
 	desc.clearColor = Color(0.f, 0.f, 0.f, 0.f);
 	
-	desc.app = make_shared<SkyDemo>();
+	desc.app = make_shared<TweenDemo>();
 
 	GAME->Run(desc);
 

@@ -8,7 +8,9 @@
 ModelAnimator::ModelAnimator(shared_ptr<Shader> shader)
 	: Super(ComponentType::Animator), _shader(shader)
 {
-
+	// TEST
+	_tweenDesc.next.animIndex = rand() % 3;
+	_tweenDesc.tweenSumTime += rand() % 100;
 }
 
 ModelAnimator::~ModelAnimator()
@@ -16,134 +18,24 @@ ModelAnimator::~ModelAnimator()
 
 }
 
-//void ModelAnimator::Update()
-//{
-//	if (_model == nullptr)
-//		return;
-//	if (_texture == nullptr)
-//		CreateTexture();
-//
-//	// Anim Update
-//	ImGui::InputInt("AnimIndex", &_keyframeDesc.animIndex);
-//	_keyframeDesc.animIndex %= _model->GetAnimationCount();
-//	ImGui::InputInt("CurrFrame", (int*)&_keyframeDesc.currFrame);
-//	_keyframeDesc.currFrame %= _model->GetAnimationByIndex(_keyframeDesc.animIndex)->frameCount;
-//
-//	// 애니메이션 현재 프레임 정보
-//	RENDER->PushKeyframeData(_keyframeDesc);
-//
-//	// SRV를 통해 정보 전달
-//	_shader->GetSRV("TransformMap")->SetResource(_srv.Get());
-//
-//	// Bones
-//	BoneDesc boneDesc;
-//
-//	const uint32 boneCount = _model->GetBoneCount();
-//	for (uint32 i = 0; i < boneCount; i++)
-//	{
-//		shared_ptr<ModelBone> bone = _model->GetBoneByIndex(i);
-//		boneDesc.transforms[i] = bone->transform;
-//	}
-//	RENDER->PushBoneData(boneDesc);
-//
-//	// Transform
-//	auto world = GetTransform()->GetWorldMatrix();
-//	RENDER->PushTransformData(TransformDesc{ world });
-//
-//	const auto& meshes = _model->GetMeshes();
-//	for (auto& mesh : meshes)
-//	{
-//		if (mesh->material)
-//			mesh->material->Update();
-//
-//		// BoneIndex
-//		_shader->GetScalar("BoneIndex")->SetInt(mesh->boneIndex);
-//
-//		uint32 stride = mesh->vertexBuffer->GetStride();
-//		uint32 offset = mesh->vertexBuffer->GetOffset();
-//
-//		DC->IASetVertexBuffers(0, 1, mesh->vertexBuffer->GetComPtr().GetAddressOf(), &stride, &offset);
-//		DC->IASetIndexBuffer(mesh->indexBuffer->GetComPtr().Get(), DXGI_FORMAT_R32_UINT, 0);
-//
-//		_shader->DrawIndexed(0, _pass, mesh->indexBuffer->GetCount(), 0, 0);
-//	}
-//}
+void ModelAnimator::SetModel(shared_ptr<Model> model)
+{
+	_model = model;
 
-//void ModelAnimator::Update()
-//{
-//	if (_model == nullptr)
-//		return;
-//	if (_texture == nullptr)
-//		CreateTexture();
-//
-//	_keyframeDesc.sumTime += DT;
-//
-//	shared_ptr<ModelAnimation> current = _model->GetAnimationByIndex(_keyframeDesc.animIndex);
-//	if (current)
-//	{
-//		float timePerFrame = 1 / (current->frameRate * _keyframeDesc.speed);
-//		if (_keyframeDesc.sumTime >= timePerFrame)
-//		{
-//			_keyframeDesc.sumTime = 0.f;
-//			_keyframeDesc.currFrame = (_keyframeDesc.currFrame + 1) % current->frameCount;
-//			_keyframeDesc.nextFrame = (_keyframeDesc.currFrame + 1) % current->frameCount;
-//		}
-//
-//		_keyframeDesc.ratio = (_keyframeDesc.sumTime / timePerFrame);
-//	}
-//
-//	// Anim Update
-//	ImGui::InputInt("AnimIndex", &_keyframeDesc.animIndex);
-//	_keyframeDesc.animIndex %= _model->GetAnimationCount();
-//	ImGui::InputFloat("Speed", &_keyframeDesc.speed, 0.5f, 4.f);
-//
-//	// 애니메이션 현재 프레임 정보
-//	RENDER->PushKeyframeData(_keyframeDesc);
-//
-//	// SRV를 통해 정보 전달
-//	_shader->GetSRV("TransformMap")->SetResource(_srv.Get());
-//
-//	// Bones
-//	BoneDesc boneDesc;
-//
-//	const uint32 boneCount = _model->GetBoneCount();
-//	for (uint32 i = 0; i < boneCount; i++)
-//	{
-//		shared_ptr<ModelBone> bone = _model->GetBoneByIndex(i);
-//		boneDesc.transforms[i] = bone->transform;
-//	}
-//	RENDER->PushBoneData(boneDesc);
-//
-//	// Transform
-//	auto world = GetTransform()->GetWorldMatrix();
-//	RENDER->PushTransformData(TransformDesc{ world });
-//
-//	const auto& meshes = _model->GetMeshes();
-//	for (auto& mesh : meshes)
-//	{
-//		if (mesh->material)
-//			mesh->material->Update();
-//
-//		// BoneIndex
-//		_shader->GetScalar("BoneIndex")->SetInt(mesh->boneIndex);
-//
-//		uint32 stride = mesh->vertexBuffer->GetStride();
-//		uint32 offset = mesh->vertexBuffer->GetOffset();
-//
-//		DC->IASetVertexBuffers(0, 1, mesh->vertexBuffer->GetComPtr().GetAddressOf(), &stride, &offset);
-//		DC->IASetIndexBuffer(mesh->indexBuffer->GetComPtr().Get(), DXGI_FORMAT_R32_UINT, 0);
-//
-//		_shader->DrawIndexed(0, _pass, mesh->indexBuffer->GetCount(), 0, 0);
-//	}
-//}
+	const auto& materials = _model->GetMaterials();
+	for (auto& material : materials)
+	{
+		material->SetShader(_shader);
+	}
+}
 
 void ModelAnimator::Update()
 {
-	if (_model == nullptr)
-		return;
-	if (_texture == nullptr)
-		CreateTexture();
 
+}
+
+void ModelAnimator::UpdateTweenData()
+{
 	TweenDesc& desc = _tweenDesc;
 
 	desc.curr.sumTime += DT;
@@ -195,25 +87,14 @@ void ModelAnimator::Update()
 			desc.next.ratio = desc.next.sumTime / timePerFrame;
 		}
 	}
+}
 
-	// Anim Update
-	ImGui::InputInt("AnimIndex", &desc.curr.animIndex);
-	_keyframeDesc.animIndex %= _model->GetAnimationCount();
-
-	static int32 nextAnimIndex = 0;
-	if (ImGui::InputInt("NextAnimIndex", &nextAnimIndex))
-	{
-		nextAnimIndex %= _model->GetAnimationCount();
-		desc.ClearNextAnim(); // 기존꺼 밀어주기
-		desc.next.animIndex = nextAnimIndex;
-	}
-
-	if (_model->GetAnimationCount() > 0)
-		desc.curr.animIndex %= _model->GetAnimationCount();
-
-	ImGui::InputFloat("Speed", &desc.curr.speed, 0.5f, 4.f);
-
-	RENDER->PushTweenData(desc);
+void ModelAnimator::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer)
+{
+	if (_model == nullptr)
+		return;
+	if (_texture == nullptr)
+		CreateTexture();
 
 	// SRV를 통해 정보 전달
 	_shader->GetSRV("TransformMap")->SetResource(_srv.Get());
@@ -229,10 +110,6 @@ void ModelAnimator::Update()
 	}
 	RENDER->PushBoneData(boneDesc);
 
-	// Transform
-	auto world = GetTransform()->GetWorldMatrix();
-	RENDER->PushTransformData(TransformDesc{ world });
-
 	const auto& meshes = _model->GetMeshes();
 	for (auto& mesh : meshes)
 	{
@@ -242,25 +119,18 @@ void ModelAnimator::Update()
 		// BoneIndex
 		_shader->GetScalar("BoneIndex")->SetInt(mesh->boneIndex);
 
-		uint32 stride = mesh->vertexBuffer->GetStride();
-		uint32 offset = mesh->vertexBuffer->GetOffset();
+		mesh->vertexBuffer->PushData();
+		mesh->indexBuffer->PushData();
 
-		DC->IASetVertexBuffers(0, 1, mesh->vertexBuffer->GetComPtr().GetAddressOf(), &stride, &offset);
-		DC->IASetIndexBuffer(mesh->indexBuffer->GetComPtr().Get(), DXGI_FORMAT_R32_UINT, 0);
+		buffer->PushData();
 
-		_shader->DrawIndexed(0, _pass, mesh->indexBuffer->GetCount(), 0, 0);
+		_shader->DrawIndexedInstanced(0, _pass, mesh->indexBuffer->GetCount(), buffer->GetCount());
 	}
 }
 
-void ModelAnimator::SetModel(shared_ptr<Model> model)
+InstanceID ModelAnimator::GetInstanceID()
 {
-	_model = model;
-
-	const auto& materials = _model->GetMaterials();
-	for (auto& material : materials)
-	{
-		material->SetShader(_shader);
-	}
+	return make_pair((uint64)_model.get(), (uint64)_shader.get());
 }
 
 void ModelAnimator::CreateTexture()
