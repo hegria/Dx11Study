@@ -19,29 +19,29 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AnimInstancingDemo.h" />
     <ClInclude Include="CameraScript.h" />
-    <ClInclude Include="InstancingDemo.h" />
+    <ClInclude Include="GroupDemo.h" />
     <ClInclude Include="Main.h" />
-    <ClInclude Include="MeshInstancingDemo.h" />
-    <ClInclude Include="ModelInstancingDemo.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="RenderDemo.h" />
+    <ClInclude Include="RawBufferDemo.h" />
     <ClInclude Include="SceneDemo.h" />
+    <ClInclude Include="StructuredBufferDemo.h" />
+    <ClInclude Include="TextureBufferDemo.h" />
+    <ClInclude Include="ViewportDemo.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AnimInstancingDemo.cpp" />
     <ClCompile Include="CameraScript.cpp" />
-    <ClCompile Include="InstancingDemo.cpp" />
+    <ClCompile Include="GroupDemo.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="MeshInstancingDemo.cpp" />
-    <ClCompile Include="ModelInstancingDemo.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="RenderDemo.cpp" />
+    <ClCompile Include="RawBufferDemo.cpp" />
     <ClCompile Include="SceneDemo.cpp" />
+    <ClCompile Include="StructuredBufferDemo.cpp" />
+    <ClCompile Include="TextureBufferDemo.cpp" />
+    <ClCompile Include="ViewportDemo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Shaders\00. Global.fx" />
@@ -79,6 +79,10 @@
     <FxCompile Include="..\Shaders\21. ModelInstancingDemo.fx" />
     <FxCompile Include="..\Shaders\22. AnimInstancingDemo.fx" />
     <FxCompile Include="..\Shaders\23. RenderDemo.fx" />
+    <FxCompile Include="..\Shaders\24. RawBufferDemo.fx" />
+    <FxCompile Include="..\Shaders\25. GroupDemo.fx" />
+    <FxCompile Include="..\Shaders\26. TextureBufferDemo.fx" />
+    <FxCompile Include="..\Shaders\27. StructuredBufferDemo.fx" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
