@@ -1,5 +1,8 @@
 #include "pch.h"
-#include "TextureBufferDemo.h"
+#include "RawBuffer.h"
+#include "TextureBuffer.h"
+#include "Material.h"
+#include "ButtonDemo.h"
 #include "GeometryHelper.h"
 #include "Camera.h"
 #include "GameObject.h"
@@ -15,12 +18,17 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "Light.h"
-#include "TextureBuffer.h"
+#include "Graphics.h"
+#include "SphereCollider.h"
+#include "Scene.h"
+#include "AABBBoxCollider.h"
+#include "OBBBoxCollider.h"
+#include "Terrain.h"
+#include "Camera.h"
+#include "Button.h"
 
-void TextureBufferDemo::Init()
+void ButtonDemo::Init()
 {
-	auto newSrv = MakeComputeShaderTexture();
-
 	_shader = make_shared<Shader>(L"23. RenderDemo.fx");
 
 	// Camera
@@ -28,7 +36,23 @@ void TextureBufferDemo::Init()
 		auto camera = make_shared<GameObject>();
 		camera->GetOrAddTransform()->SetPosition(Vec3{ 0.f, 0.f, -5.f });
 		camera->AddComponent(make_shared<Camera>());
+		//camera->AddComponent(make_shared<CameraScript>());
+		camera->GetCamera()->SetCullingMaskLayerOnOff(Layer_UI, true);
+		CUR_SCENE->Add(camera);
+	}
+
+	// UI_Camera
+	{
+		auto camera = make_shared<GameObject>();
+		camera->GetOrAddTransform()->SetPosition(Vec3{ 0.f, 0.f, -5.f });
+		camera->AddComponent(make_shared<Camera>());
+		camera->GetCamera()->SetProjectionType(ProjectionType::Orthographic);
+		camera->GetCamera()->SetNear(1.f);
+		camera->GetCamera()->SetFar(100.f);
 		camera->AddComponent(make_shared<CameraScript>());
+
+		camera->GetCamera()->SetCullingMaskAll();
+		camera->GetCamera()->SetCullingMaskLayerOnOff(Layer_UI, false);
 		CUR_SCENE->Add(camera);
 	}
 
@@ -44,15 +68,12 @@ void TextureBufferDemo::Init()
 		light->GetLight()->SetLightDesc(lightDesc);
 		CUR_SCENE->Add(light);
 	}
-	
 
-	// Mesh
 	// Material
 	{
 		shared_ptr<Material> material = make_shared<Material>();
 		material->SetShader(_shader);
-		auto texture = make_shared<Texture>();
-		texture->SetSRV(newSrv);
+		auto texture = RESOURCES->Load<Texture>(L"Veigar", L"..\\Resources\\Textures\\veigar.jpg");
 		material->SetDiffuseMap(texture);
 		MaterialDesc& desc = material->GetMaterialDesc();
 		desc.ambient = Vec4(1.f);
@@ -61,10 +82,23 @@ void TextureBufferDemo::Init()
 		RESOURCES->Add(L"Veigar", material);
 	}
 
-	for (int32 i = 0; i < 100; i++)
+	// Mesh
 	{
 		auto obj = make_shared<GameObject>();
-		obj->GetOrAddTransform()->SetLocalPosition(Vec3(rand() % 100, 0, rand() % 100));
+		obj->AddComponent(make_shared<Button>());
+
+		obj->GetButton()->Create(Vec2(100, 100), Vec2(100, 100), RESOURCES->Get<Material>(L"Veigar"));
+
+		obj->GetButton()->AddOnClickedEvent([obj]() { CUR_SCENE->Remove(obj); });
+
+		CUR_SCENE->Add(obj);
+	}
+
+	// Mesh
+	{
+		auto obj = make_shared<GameObject>();
+		obj->GetOrAddTransform()->SetLocalPosition(Vec3(0.f));
+		obj->GetOrAddTransform()->SetScale(Vec3(2.f));
 		obj->AddComponent(make_shared<MeshRenderer>());
 		{
 			obj->GetMeshRenderer()->SetMaterial(RESOURCES->Get<Material>(L"Veigar"));
@@ -77,37 +111,15 @@ void TextureBufferDemo::Init()
 
 		CUR_SCENE->Add(obj);
 	}
-
-	//RENDER->Init(_shader);
 }
 
-void TextureBufferDemo::Update()
+void ButtonDemo::Update()
 {
-
-}
-
-void TextureBufferDemo::Render()
-{
-
-}
-
-Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> TextureBufferDemo::MakeComputeShaderTexture()
-{
-	auto shader = make_shared<Shader>(L"26. TextureBufferDemo.fx");
 	
-	auto texture = RESOURCES->Load<Texture>(L"Veigar", L"..\\Resources\\Textures\\veigar.jpg");
-	shared_ptr<TextureBuffer> textureBuffer = make_shared<TextureBuffer>(texture->GetTexture2D());
-
-	shader->GetSRV("Input")->SetResource(textureBuffer->GetSRV().Get());
-	shader->GetUAV("Output")->SetUnorderedAccessView(textureBuffer->GetUAV().Get());
-
-	uint32 width = textureBuffer->GetWidth();
-	uint32 height = textureBuffer->GetHeight();
-	uint32 arraySize = textureBuffer->GetArraySize();
-
-	uint32 x = max(1, (width + 31) / 32);
-	uint32 y = max(1, (height + 31) / 32);
-	shader->Dispatch(0, 0, x, y, arraySize);
-
-	return textureBuffer->GetOutputSRV();
 }
+
+void ButtonDemo::Render()
+{
+
+}
+

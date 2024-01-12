@@ -1,7 +1,7 @@
 #pragma once
 
 
-class ViewportDemo : public IExecute
+class ButtonDemo : public IExecute
 {
 public:
 	void Init() override;
@@ -12,4 +12,3 @@ private:
 	shared_ptr<Shader> _shader;
 
 };
-

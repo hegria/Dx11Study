@@ -1,9 +1,8 @@
 #include "pch.h"
-#include "ViewportDemo.h"
 #include "RawBuffer.h"
 #include "TextureBuffer.h"
 #include "Material.h"
-#include "SceneDemo.h"
+#include "OrthographicDemo.h"
 #include "GeometryHelper.h"
 #include "Camera.h"
 #include "GameObject.h"
@@ -20,8 +19,14 @@
 #include "IndexBuffer.h"
 #include "Light.h"
 #include "Graphics.h"
+#include "SphereCollider.h"
+#include "Scene.h"
+#include "AABBBoxCollider.h"
+#include "OBBBoxCollider.h"
+#include "Terrain.h"
+#include "Camera.h"
 
-void ViewportDemo::Init()
+void OrthographicDemo::Init()
 {
 	_shader = make_shared<Shader>(L"23. RenderDemo.fx");
 
@@ -30,7 +35,23 @@ void ViewportDemo::Init()
 		auto camera = make_shared<GameObject>();
 		camera->GetOrAddTransform()->SetPosition(Vec3{ 0.f, 0.f, -5.f });
 		camera->AddComponent(make_shared<Camera>());
+		//camera->AddComponent(make_shared<CameraScript>());
+		camera->GetCamera()->SetCullingMaskLayerOnOff(Layer_UI, true);
+		CUR_SCENE->Add(camera);
+	}
+
+	// UI_Camera
+	{
+		auto camera = make_shared<GameObject>();
+		camera->GetOrAddTransform()->SetPosition(Vec3{ 0.f, 0.f, -5.f });
+		camera->AddComponent(make_shared<Camera>());
+		camera->GetCamera()->SetProjectionType(ProjectionType::Orthographic);
+		camera->GetCamera()->SetNear(1.f);
+		camera->GetCamera()->SetFar(100.f);
 		camera->AddComponent(make_shared<CameraScript>());
+
+		camera->GetCamera()->SetCullingMaskAll();
+		camera->GetCamera()->SetCullingMaskLayerOnOff(Layer_UI, false);
 		CUR_SCENE->Add(camera);
 	}
 
@@ -61,16 +82,36 @@ void ViewportDemo::Init()
 	}
 
 	// Mesh
-	for (int32 i = 0; i < 10; i++)
 	{
 		auto obj = make_shared<GameObject>();
-		obj->GetOrAddTransform()->SetLocalPosition(Vec3(rand() % 10, 0, rand() % 10));
+		obj->GetOrAddTransform()->SetLocalPosition(Vec3(0.f, 200.f, 0.f));
+		obj->GetOrAddTransform()->SetScale(Vec3(200.f));
+		obj->AddComponent(make_shared<MeshRenderer>());
+
+		obj->SetLayerIndex(Layer_UI);
+		{
+			obj->GetMeshRenderer()->SetMaterial(RESOURCES->Get<Material>(L"Veigar"));
+		}
+		{
+			auto mesh = RESOURCES->Get<Mesh>(L"Quad");
+			obj->GetMeshRenderer()->SetMesh(mesh);
+			obj->GetMeshRenderer()->SetPass(0);
+		}
+
+		CUR_SCENE->Add(obj);
+	}
+
+	// Mesh
+	{
+		auto obj = make_shared<GameObject>();
+		obj->GetOrAddTransform()->SetLocalPosition(Vec3(0.f));
+		obj->GetOrAddTransform()->SetScale(Vec3(2.f));
 		obj->AddComponent(make_shared<MeshRenderer>());
 		{
 			obj->GetMeshRenderer()->SetMaterial(RESOURCES->Get<Material>(L"Veigar"));
 		}
 		{
-			auto mesh = RESOURCES->Get<Mesh>(L"Cube");
+			auto mesh = RESOURCES->Get<Mesh>(L"Sphere");
 			obj->GetMeshRenderer()->SetMesh(mesh);
 			obj->GetMeshRenderer()->SetPass(0);
 		}
@@ -79,22 +120,13 @@ void ViewportDemo::Init()
 	}
 }
 
-void ViewportDemo::Update()
+void OrthographicDemo::Update()
 {
-	static float width = 800.f;
-	static float height = 600.f;
-	static float x = 0.f;
-	static float y = 0.f;
-
-	ImGui::InputFloat("Width", &width, 10.f);
-	ImGui::InputFloat("Height", &height, 10.f);
-	ImGui::InputFloat("X", &x, 10.f);
-	ImGui::InputFloat("Y", &y, 10.f);
-
-	GRAPHICS->SetViewport(width, height, x, y);
+	
 }
 
-void ViewportDemo::Render()
+void OrthographicDemo::Render()
 {
 
 }
+

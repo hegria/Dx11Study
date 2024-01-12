@@ -1,7 +1,7 @@
 #pragma once
-#include "IExecute.h"
 
-class SceneDemo : public IExecute
+
+class OrthographicDemo : public IExecute
 {
 public:
 	void Init() override;
@@ -11,6 +11,4 @@ public:
 private:
 	shared_ptr<Shader> _shader;
 
-private:
 };
-

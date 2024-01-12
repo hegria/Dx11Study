@@ -1,7 +1,7 @@
 #pragma once
-#include "IExecute.h"
 
-class StructuredBufferDemo : public IExecute
+
+class SnowDemo : public IExecute
 {
 public:
 	void Init() override;
@@ -10,5 +10,5 @@ public:
 
 private:
 	shared_ptr<Shader> _shader;
-};
 
+};

@@ -7,6 +7,11 @@
 #include "ModelRenderer.h"
 #include "ModelAnimator.h"
 #include "Light.h"
+#include "BaseCollider.h"
+#include "Terrain.h"
+#include "Button.h"
+#include "Billboard.h"
+#include "SnowBillboard.h"
 
 GameObject::GameObject()
 {
@@ -129,6 +134,36 @@ std::shared_ptr<Light> GameObject::GetLight()
 {
 	shared_ptr<Component> component = GetFixedComponent(ComponentType::Light);
 	return static_pointer_cast<Light>(component);
+}
+
+std::shared_ptr<BaseCollider> GameObject::GetCollider()
+{
+	shared_ptr<Component> component = GetFixedComponent(ComponentType::Collider);
+	return static_pointer_cast<BaseCollider>(component);
+}
+
+std::shared_ptr<Terrain> GameObject::GetTerrain()
+{
+	shared_ptr<Component> component = GetFixedComponent(ComponentType::Terrain);
+	return static_pointer_cast<Terrain>(component);
+}
+
+std::shared_ptr<Button> GameObject::GetButton()
+{
+	shared_ptr<Component> component = GetFixedComponent(ComponentType::Button);
+	return static_pointer_cast<Button>(component);
+}
+
+std::shared_ptr<Billboard> GameObject::GetBillboard()
+{
+	shared_ptr<Component> component = GetFixedComponent(ComponentType::BillBoard);
+	return static_pointer_cast<Billboard>(component);
+}
+
+std::shared_ptr<SnowBillboard> GameObject::GetSnowBillboard()
+{
+	shared_ptr<Component> component = GetFixedComponent(ComponentType::SnowBillBoard);
+	return static_pointer_cast<SnowBillboard>(component);
 }
 
 std::shared_ptr<Transform> GameObject::GetOrAddTransform()
