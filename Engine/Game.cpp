@@ -108,11 +108,12 @@ void Game::Update()
 	GRAPHICS->RenderBegin();
 
 	SCENE->Update();
-
 	GUI->Update();
 	_desc.app->Update();
 	_desc.app->Render();
 	GUI->Render();
+	SCENE->Render();
+
 
 	GRAPHICS->RenderEnd();
 }

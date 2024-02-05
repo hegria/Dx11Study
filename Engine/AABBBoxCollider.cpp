@@ -36,4 +36,6 @@ bool AABBBoxCollider::Intersects(shared_ptr<BaseCollider>& other)
 	case ColliderType::OBB:
 		return _boundingBox.Intersects(dynamic_pointer_cast<OBBBoxCollider>(other)->GetBoundingBox());
 	}
+
+	return false;
 }

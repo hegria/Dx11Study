@@ -16,6 +16,8 @@ public:
 	Vec3 Project(const Vec3& pos, const Matrix& W, const Matrix& V, const Matrix& P);
 	Vec3 Unproject(const Vec3& pos, const Matrix& W, const Matrix& V, const Matrix& P);
 
+	D3D11_VIEWPORT Get() { return _vp; }
+
 private:
 	D3D11_VIEWPORT _vp;
 };

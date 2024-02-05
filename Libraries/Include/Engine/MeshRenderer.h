@@ -18,6 +18,8 @@ public:
 	void SetMaterial(shared_ptr<Material> material) { _material = material; }
 	void SetPass(uint8 pass) { _pass = pass; }
 
+	shared_ptr<Material> GetMaterial() { return _material; }
+
 	void RenderInstancing(shared_ptr<class InstancingBuffer>& buffer);
 	InstanceID GetInstanceID();
 

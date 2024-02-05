@@ -16,6 +16,7 @@ enum class ComponentType : uint8
 	Button,
 	BillBoard,
 	SnowBillBoard,
+	ParticleSystem,
 	// ...
 	Script,
 
@@ -38,6 +39,7 @@ public:
 	virtual void Update() { }
 	virtual void LateUpdate() { }
 	virtual void FixedUpdate() { }
+	virtual void FinalUpdate() { }
 
 public:
 	ComponentType GetType() { return _type; }

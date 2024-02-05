@@ -52,6 +52,9 @@
     <Filter Include="06. UI &amp; Effect">
       <UniqueIdentifier>{f18b1053-df94-431a-81f8-f0618b76df06}</UniqueIdentifier>
     </Filter>
+    <Filter Include="07. Shader">
+      <UniqueIdentifier>{364c060e-b44d-42c3-8e2e-47373f3c54fe}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -258,6 +261,12 @@
     <ClInclude Include="SnowBillboard.h">
       <Filter>06. UI &amp; Effect</Filter>
     </ClInclude>
+    <ClInclude Include="ParticleSystem.h">
+      <Filter>04. Component</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTargetGroup.h">
+      <Filter>01. Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -451,6 +460,12 @@
     </ClCompile>
     <ClCompile Include="SnowBillboard.cpp">
       <Filter>06. UI &amp; Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSystem.cpp">
+      <Filter>04. Component</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderTargetGroup.cpp">
+      <Filter>01. Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

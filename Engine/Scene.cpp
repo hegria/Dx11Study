@@ -6,6 +6,16 @@
 #include "Terrain.h"
 #include "Button.h"
 
+void Scene::Awake()
+{
+	unordered_set<shared_ptr<GameObject>> objects = _objects;
+
+	for (shared_ptr<GameObject> object : objects)
+	{
+		object->Awake();
+	}
+}
+
 void Scene::Start()
 {
 	unordered_set<shared_ptr<GameObject>> objects = _objects;
@@ -40,13 +50,66 @@ void Scene::LateUpdate()
 	CheckCollision();
 }
 
+void Scene::FinalUpdate()
+{
+	unordered_set<shared_ptr<GameObject>> objects = _objects;
+
+	for (shared_ptr<GameObject> object : objects)
+	{
+		object->FinalUpdate();
+	}
+}
+
 void Scene::Render()
 {
+	//Clear RTV
+
+	//RenderShadow();
+
+	//RenderDeferred();
+
+	//RenderLights();
+
+	//RenderFinal();
+	
+
+	//RenderForward();
+	
 	for (auto& camera : _cameras)
 	{
 		camera->GetCamera()->SortGameObject();
 		camera->GetCamera()->Render_Forward();
 	}
+}
+
+
+void Scene::ClearRTV()
+{
+}
+
+void Scene::RenderShadow()
+{
+	
+}
+
+void Scene::RenderDeferred()
+{
+
+}
+
+void Scene::RenderLights()
+{
+
+}
+
+void Scene::RenderFinal()
+{
+
+}
+
+void Scene::RenderForward()
+{
+
 }
 
 void Scene::Add(shared_ptr<GameObject> object)

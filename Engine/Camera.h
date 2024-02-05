@@ -1,5 +1,6 @@
 #pragma once
 #include "Component.h"
+#include "Frustum.h"
 
 enum class ProjectionType
 {
@@ -14,7 +15,7 @@ public:
 	Camera();
 	virtual ~Camera();
 	
-	virtual void Update() override;
+	virtual void FinalUpdate() override;
 
 	void SetProjectionType(ProjectionType type) { _type = type; }
 	ProjectionType GetProjectionType() { return _type; }
@@ -38,6 +39,8 @@ private:
 	Matrix _matView = Matrix::Identity;
 	Matrix _matProjection = Matrix::Identity;
 
+	Frustum _frustum;
+
 	float _near = 1.f;
 	float _far = 1000.f;
 	float _fov = XM_PI / 4.f;
@@ -51,7 +54,11 @@ public:
 
 public:
 	void SortGameObject();
+	void SortShadowObject();
+
 	void Render_Forward();
+	void Render_Deferred();
+	void Render_Shadow();
 
 	void SetCullingMaskLayerOnOff(uint8 layer, bool on)
 	{
@@ -67,5 +74,8 @@ public:
 
 private:
 	uint32 _cullingMask = 0;
+	vector<shared_ptr<GameObject>> _vecDeferred;
+	vector<shared_ptr<GameObject>> _vecParticle;
 	vector<shared_ptr<GameObject>> _vecForward;
+	vector<shared_ptr<GameObject>> _vecShadow;
 };

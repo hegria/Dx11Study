@@ -15,6 +15,7 @@ public:
 
 	static Vec3 ToEulerAngles(Quaternion q);
 
+	float GetBoundingSphereRadius() { return max(max(_localScale.x, _localScale.y), _localScale.z); }
 	// Local
 	Vec3 GetLocalScale() { return _localScale; }
 	void SetLocalScale(const Vec3& localScale) { _localScale = localScale; UpdateTransform(); }

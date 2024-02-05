@@ -4,11 +4,20 @@
 class Scene
 {
 public:
+	virtual void Awake();
 	virtual void Start();
 	virtual void Update();
 	virtual void LateUpdate();
+	virtual void FinalUpdate();
 
 	virtual void Render();
+
+	void ClearRTV();
+	void RenderShadow();
+	void RenderDeferred();
+	void RenderLights();
+	void RenderFinal();
+	void RenderForward();
 
 	virtual void Add(shared_ptr<GameObject> object);
 	virtual void Remove(shared_ptr<GameObject> object);

@@ -28,6 +28,34 @@ struct LightDesc
 	float padding0;
 };
 
+
+struct LightColor
+{
+	Vec4	diffuse;
+	Vec4	ambient;
+	Vec4	specular;
+	Vec4	emissive;
+};
+struct LightInfo
+{
+	LightColor	color;
+	Vec4		position;
+	Vec4		direction;
+	int32		lightType;
+	float		range;
+	float		angle;
+	int32		padding;
+};
+
+
+struct LightParams
+{
+	uint32		lightCount;
+	Vec3		padding;
+	LightInfo	lights[50];
+};
+
+
 struct MaterialDesc
 {
 	Color ambient = Color(0.f, 0.f, 0.f, 1.f);
@@ -102,3 +130,5 @@ struct SnowBillboardDesc
 	Vec3 extent = Vec3(0, 0, 0);
 	float time;
 };
+
+

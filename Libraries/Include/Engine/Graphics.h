@@ -1,5 +1,6 @@
 #pragma once
 #include "Viewport.h"
+#include "RenderTargetGroup.h"
 
 class Graphics
 {
@@ -7,6 +8,8 @@ class Graphics
 
 public:
 	void Init(HWND hwnd);
+
+	void ShadowRenderBegin();
 
 	void RenderBegin();
 	void RenderEnd();
@@ -18,6 +21,11 @@ private:
 	void CreateDeviceAndSwapChain();
 	void CreateRenderTargetView();
 	void CreateDepthStencilView();
+	void CreateShadowMapView();
+
+	void BindShadowRenderTarget();
+
+	void CreateRenderTargetGroups();
 
 public:
 	void SetViewport(float width, float height, float x = 0, float y = 0, float minDepth = 0, float maxDepth = 1);
@@ -31,12 +39,19 @@ private:
 	ComPtr<ID3D11DeviceContext> _deviceContext = nullptr;
 	ComPtr<IDXGISwapChain> _swapChain = nullptr;
 
-	// RTV
+	// SwapChain
 	ComPtr<ID3D11RenderTargetView> _renderTargetView;
-
-	// DSV
 	ComPtr<ID3D11Texture2D> _depthStencilTexture;
 	ComPtr<ID3D11DepthStencilView> _depthStencilView;
+
+	// Shadow
+	ComPtr<ID3D11RenderTargetView> _ShadowrenderTargetView;
+	ComPtr<ID3D11ShaderResourceView> _ShadowdepthMapSRV;
+	ComPtr<ID3D11DepthStencilView> _ShadowdepthMapDSV;
+
+	// SSAO
+
+	array<shared_ptr<RenderTargetGroup>, RENDER_TARGET_GROUP_COUNT> _rtGroups;
 
 	// Misc
 	//D3D11_VIEWPORT _viewport = { 0 };

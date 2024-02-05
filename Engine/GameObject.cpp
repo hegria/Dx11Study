@@ -12,6 +12,7 @@
 #include "Button.h"
 #include "Billboard.h"
 #include "SnowBillboard.h"
+#include "ParticleSystem.h"
 
 GameObject::GameObject()
 {
@@ -93,6 +94,16 @@ void GameObject::FixedUpdate()
 	}
 }
 
+void GameObject::FinalUpdate()
+{
+	for (shared_ptr<Component>& component : _components)
+	{
+		if (component)
+			component->FinalUpdate();
+	}
+
+}
+
 std::shared_ptr<Component> GameObject::GetFixedComponent(ComponentType type)
 {
 	uint8 index = static_cast<uint8>(type);
@@ -164,6 +175,12 @@ std::shared_ptr<SnowBillboard> GameObject::GetSnowBillboard()
 {
 	shared_ptr<Component> component = GetFixedComponent(ComponentType::SnowBillBoard);
 	return static_pointer_cast<SnowBillboard>(component);
+}
+
+shared_ptr<ParticleSystem> GameObject::GetParticleSystem()
+{
+	shared_ptr<Component> component = GetFixedComponent(ComponentType::ParticleSystem);
+	return static_pointer_cast<ParticleSystem>(component);
 }
 
 std::shared_ptr<Transform> GameObject::GetOrAddTransform()

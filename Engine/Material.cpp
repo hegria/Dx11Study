@@ -28,13 +28,13 @@ void Material::Update()
 	_shader->PushMaterialData(_desc);
 
 	if (_diffuseMap)
-		_diffuseEffectBuffer->SetResource(_diffuseMap->GetComPtr().Get());
+		_diffuseEffectBuffer->SetResource(_diffuseMap->GetSRV().Get());
 
 	if (_normalMap)
-		_normalEffectBuffer->SetResource(_normalMap->GetComPtr().Get());
+		_normalEffectBuffer->SetResource(_normalMap->GetSRV().Get());
 
 	if (_specularMap)
-		_specularEffectBuffer->SetResource(_specularMap->GetComPtr().Get());
+		_specularEffectBuffer->SetResource(_specularMap->GetSRV().Get());
 }
 
 std::shared_ptr<Material> Material::Clone()

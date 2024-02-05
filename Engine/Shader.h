@@ -3,6 +3,17 @@
 #include "Technique.h"
 #include "BindShaderDesc.h"
 
+enum class SHADER_TYPE : uint8
+{
+	DEFERRED,
+	FORWARD,
+	LIGHTING,
+	PARTICLE,
+	COMPUTE,
+	SHADOW,
+};
+
+
 struct ShaderDesc
 {
 	ComPtr<ID3DBlob> blob;
@@ -20,6 +31,10 @@ public:
 
 	wstring GetFile() { return _file; }
 	ComPtr<ID3DX11Effect> Effect() { return _shaderDesc.effect; }
+
+	SHADER_TYPE GetShaderType() { return _shaderType; }
+	void SetShaderType(SHADER_TYPE type) { _shaderType = type; }
+	
 
 	void Draw(UINT technique, UINT pass, UINT vertexCount, UINT startVertexLocation = 0);
 	void DrawIndexed(UINT technique, UINT pass, UINT indexCount, UINT startIndexLocation = 0, INT baseVertexLocation = 0);
@@ -49,6 +64,7 @@ private:
 	ComPtr<ID3D11InputLayout> CreateInputLayout(ComPtr<ID3DBlob> fxBlob, D3DX11_EFFECT_SHADER_DESC* effectVsDesc, vector<D3D11_SIGNATURE_PARAMETER_DESC>& params);
 
 private:
+	SHADER_TYPE _shaderType = SHADER_TYPE::FORWARD;
 	wstring _file;
 	ShaderDesc _shaderDesc;
 	D3DX11_EFFECT_DESC _effectDesc;

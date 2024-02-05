@@ -17,6 +17,7 @@ MeshRenderer::~MeshRenderer()
 
 }
 
+
 void MeshRenderer::RenderInstancing(shared_ptr<class InstancingBuffer>& buffer)
 {
 	if (_mesh == nullptr || _material == nullptr)
