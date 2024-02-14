@@ -20,8 +20,9 @@ struct ShaderDesc
 	ComPtr<ID3DX11Effect> effect;
 };
 
-class Shader
+class Shader : public ResourceBase
 {
+	using Super = ResourceBase;
 public:
 	friend struct Pass;
 
@@ -82,8 +83,10 @@ public:
 	void PushSnowData(const SnowBillboardDesc& desc);
 
 private:
+
+
 	GlobalDesc _globalDesc;
-	shared_ptr<ConstantBuffer<GlobalDesc>> _globalBuffer;
+	shared_ptr<ConstantBuffer<TransformDesc>> _globalBuffer;
 	ComPtr<ID3DX11EffectConstantBuffer> _globalEffectBuffer;
 
 	TransformDesc _transformDesc;

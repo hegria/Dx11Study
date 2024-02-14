@@ -12,6 +12,7 @@ public:
 
 	virtual void Render();
 
+	void PushLightData();
 	void ClearRTV();
 	void RenderShadow();
 	void RenderDeferred();

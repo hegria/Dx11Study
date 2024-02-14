@@ -181,6 +181,9 @@ void Graphics::CreateRenderTargetGroups()
 
 	shared_ptr<Texture> dsTexture = make_shared<Texture>();
 	dsTexture->Create(desc);
+	RESOURCES->Add<Texture>(L"DepthStencil", dsTexture);
+
+
 
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthdesc;
 	ZeroMemory(&depthdesc, sizeof(depthdesc));
@@ -199,6 +202,7 @@ void Graphics::CreateRenderTargetGroups()
 			shared_ptr<Texture> tex = make_shared<Texture>();
 			tex->CreateTextureFromResource(resource);
 			tex->SetRTV();
+			RESOURCES->Add<Texture>(L"SwapChainTarget", tex);
 			rtVec[i].target = tex;
 		}
 		_rtGroups[static_cast<uint8>(RENDER_TARGET_GROUP_TYPE::SWAP_CHAIN)] = make_shared<RenderTargetGroup>();
@@ -225,6 +229,7 @@ void Graphics::CreateRenderTargetGroups()
 		texDesc.MiscFlags = 0;
 		shared_ptr<Texture> shadowDepthTex = make_shared<Texture>();
 		shadowDepthTex->Create(texDesc);
+		RESOURCES->Add<Texture>(L"ShadowDepthStencil", shadowDepthTex);
 
 		D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
 		dsvDesc.Flags = 0;
@@ -246,6 +251,8 @@ void Graphics::CreateRenderTargetGroups()
 		ComPtr<ID3D11RenderTargetView> nullrtv = ComPtr<ID3D11RenderTargetView>(renderTargets);
 		tempTex->SetRTV(nullrtv);
 		rtVec[0].target = tempTex;
+		RESOURCES->Add<Texture>(L"ShadowTarget", tempTex);
+
 
 		_rtGroups[static_cast<uint8>(RENDER_TARGET_GROUP_TYPE::SHADOW)] = make_shared<RenderTargetGroup>();
 		_rtGroups[static_cast<uint8>(RENDER_TARGET_GROUP_TYPE::SHADOW)]->Create(RENDER_TARGET_GROUP_TYPE::SHADOW, rtVec, shadowDepthTex);
@@ -268,10 +275,13 @@ void Graphics::CreateRenderTargetGroups()
 		texDesc.MiscFlags = 0;
 		shared_ptr<Texture> posTex = make_shared<Texture>();
 		posTex->Create(texDesc);
+		RESOURCES->Add<Texture>(L"PositionTarget", posTex);
 		shared_ptr<Texture> normalTex = make_shared<Texture>();
 		normalTex->Create(texDesc);
+		RESOURCES->Add<Texture>(L"NormalTarget", normalTex);
 		shared_ptr<Texture> DiffuseTex = make_shared<Texture>();
 		DiffuseTex->Create(texDesc);
+		RESOURCES->Add<Texture>(L"DiffuseTarget", DiffuseTex);
 		rtVec[0].target = posTex;
 		rtVec[1].target = normalTex;
 		rtVec[2].target = DiffuseTex;
@@ -298,9 +308,10 @@ void Graphics::CreateRenderTargetGroups()
 		texDesc.MiscFlags = 0;
 		shared_ptr<Texture> DiffuseLightTarget = make_shared<Texture>();
 		DiffuseLightTarget->Create(texDesc);
+		RESOURCES->Add<Texture>(L"DiffuseLightTarget", DiffuseLightTarget);
 		shared_ptr<Texture> SpecLightTarget = make_shared<Texture>();
 		SpecLightTarget->Create(texDesc);
-
+		RESOURCES->Add<Texture>(L"SpecularLightTarget", SpecLightTarget);
 		rtVec[0].target = DiffuseLightTarget;
 		rtVec[1].target = SpecLightTarget;
 

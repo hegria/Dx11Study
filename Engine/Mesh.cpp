@@ -40,6 +40,12 @@ void Mesh::CreateSphere()
 	CreateBuffers();
 }
 
+void Mesh::Update()
+{
+	_vertexBuffer->PushData();
+	_indexBuffer->PushData();
+}
+
 void Mesh::CreateBuffers()
 {
 	_vertexBuffer = make_shared<VertexBuffer>();

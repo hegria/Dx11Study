@@ -29,6 +29,8 @@ public:
 
 private:
 	void CreateDefaultMesh();
+	void CreateDefaultShader();
+	void CreateDefaultMaterial();
 
 private:
 	wstring _resourcePath;

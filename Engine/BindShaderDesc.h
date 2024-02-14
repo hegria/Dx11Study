@@ -11,9 +11,15 @@ struct GlobalDesc
 	Matrix VInv = Matrix::Identity;
 };
 
+
 struct TransformDesc
 {
-	Matrix W = Matrix::Identity;
+	Matrix matWorld;
+	Matrix matView;
+	Matrix matProjection;
+	Matrix matWV;
+	Matrix matWVP;
+	Matrix matViewInv;
 };
 
 // Light

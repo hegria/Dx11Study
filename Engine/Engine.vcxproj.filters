@@ -473,4 +473,30 @@
       <Filter>98. Utils</Filter>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\Resources\Shader\lighting.fx">
+      <Filter>07. Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Resources\Shader\global.fx">
+      <Filter>07. Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Resources\Shader\particle.fx">
+      <Filter>07. Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Resources\Shader\shadow.fx">
+      <Filter>07. Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Resources\Shader\skybox.fx">
+      <Filter>07. Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Resources\Shader\utils.fx">
+      <Filter>07. Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Resources\Shader\deferred.fx">
+      <Filter>07. Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Resources\Shader\forwrad.fx">
+      <Filter>07. Shader</Filter>
+    </FxCompile>
+  </ItemGroup>
 </Project>

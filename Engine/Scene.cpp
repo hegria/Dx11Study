@@ -5,6 +5,10 @@
 #include "Camera.h"
 #include "Terrain.h"
 #include "Button.h"
+#include "Light.h"
+#include "ResourceManager.h"
+#include "Mesh.h"
+#include "Material.h"
 
 void Scene::Awake()
 {
@@ -62,6 +66,8 @@ void Scene::FinalUpdate()
 
 void Scene::Render()
 {
+	// PushLIghtData();
+
 	//Clear RTV
 
 	//RenderShadow();
@@ -83,33 +89,82 @@ void Scene::Render()
 }
 
 
+void Scene::PushLightData()
+{
+}
+
 void Scene::ClearRTV()
 {
+	GRAPHICS->GetRTGroup(RENDER_TARGET_GROUP_TYPE::SWAP_CHAIN)->ClearRenderTargetView();
+	// Shadow Group 초기화
+	GRAPHICS->GetRTGroup(RENDER_TARGET_GROUP_TYPE::SHADOW)->ClearRenderTargetView();
+	// Deferred Group 초기화
+	GRAPHICS->GetRTGroup(RENDER_TARGET_GROUP_TYPE::G_BUFFER)->ClearRenderTargetView();
+	// Lighting Group 초기화
+	GRAPHICS->GetRTGroup(RENDER_TARGET_GROUP_TYPE::LIGHTING)->ClearRenderTargetView();
 }
 
 void Scene::RenderShadow()
 {
-	
+	GRAPHICS->GetRTGroup(RENDER_TARGET_GROUP_TYPE::SHADOW)->OMSetRenderTargets();
+
+	for (auto& light : _lights)
+	{
+		if (light->GetLight()->GetLightType() != LIGHT_TYPE::DIRECTIONAL_LIGHT)
+			continue;
+
+		light->GetLight()->RenderShadow();
+	}
 }
 
 void Scene::RenderDeferred()
 {
+	// Deferred OMSet
+	GRAPHICS->GetRTGroup(RENDER_TARGET_GROUP_TYPE::G_BUFFER)->OMSetRenderTargets();
 
+	shared_ptr<Camera> mainCamera = GetMainCamera()->GetCamera();
+	mainCamera->SortGameObject();
+	mainCamera->Render_Deferred();
 }
 
 void Scene::RenderLights()
 {
+	shared_ptr<Camera> mainCamera = GetMainCamera()->GetCamera();
+	Camera::S_MatView = mainCamera->GetViewMatrix();
+	Camera::S_MatProjection = mainCamera->GetProjectionMatrix();
 
+	GRAPHICS->GetRTGroup(RENDER_TARGET_GROUP_TYPE::LIGHTING)->OMSetRenderTargets();
+
+	// 광원을 그린다.
+	for (auto& light : _lights)
+	{
+		light->GetLight()->Render();
+	}
 }
 
 void Scene::RenderFinal()
 {
+	GRAPHICS->GetRTGroup(RENDER_TARGET_GROUP_TYPE::SWAP_CHAIN)->OMSetRenderTargets();
 
+	//TODO
+	RESOURCES->Get<Material>(L"Final")->Update();
+	RESOURCES->Get<Mesh>(L"Rectangle")->Update();
+	RESOURCES->Get<Material>(L"Final")->GetShader()->DrawIndexed(0, 0,RESOURCES->Get<Mesh>(L"Rectangle")->GetIndexBuffer()->GetCount());
 }
 
 void Scene::RenderForward()
 {
+	shared_ptr<Camera> mainCamera = GetMainCamera()->GetCamera();
+	mainCamera->Render_Forward();
 
+	for (auto& camera : _cameras)
+	{
+		if (camera == mainCamera)
+			continue;
+
+		camera->GetCamera()->SortGameObject();
+		camera->GetCamera()->Render_Forward();
+	}
 }
 
 void Scene::Add(shared_ptr<GameObject> object)

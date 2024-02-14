@@ -9,6 +9,7 @@ enum class LIGHT_TYPE : uint8
 	SPOT_LIGHT,
 };
 
+
 class Light : public Component
 {
 public:
@@ -40,6 +41,8 @@ private:
 
 	LightDesc _desc;
 	shared_ptr<GameObject> _shadowCamera;
+	shared_ptr<class Mesh> _volumeMesh;
+	shared_ptr<class Material> _lightMaterial;
 
 
 	int8 _lightIndex = -1;

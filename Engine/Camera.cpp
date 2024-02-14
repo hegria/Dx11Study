@@ -125,6 +125,8 @@ void Camera::Render_Shadow()
 {
 	S_MatView = _matView;
 	S_MatProjection = _matProjection;
+	RESOURCES->Get<Material>(L"Shadow")->Update();
+	GET_SINGLE(InstancingManager)->Render(_vecShadow);
 
 }
 
